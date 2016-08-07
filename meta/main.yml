@@ -1,0 +1,24 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: aarnaud
+  description: Hashicorp Consul
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.9
+  platforms:
+    - name: Debian
+      versions:
+      - 7
+      - 8
+    - name: Ubuntu
+      versions:
+      - 14.04
+      - 14.10
+      - 15.04
+      - 15.10
+      - 16.04
+  galaxy_tags:
+    - development
+    - web
+    - consul
