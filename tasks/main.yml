@@ -1,10 +1,14 @@
 ---
 
-- name: install unzip
+- name: Install consul requirement
   package: name={{item}} state=installed
   with_items:
     - unzip
-    
+    - python-pip
+
+- name: Install python-consul
+  pip: name=python-consul
+
 - name: "Check systemctl"
   stat: path=/bin/systemctl
   register: systemctl_check
