@@ -6,7 +6,7 @@
   wait_for: port=8600 delay=5 timeout=30
 
 - name: install sipcalc
-  apt: pkg={{item}} state=installed
+  package: name={{item}} state=installed
   with_items:
     - sipcalc
     - nmap

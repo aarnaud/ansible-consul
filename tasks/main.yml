@@ -58,7 +58,7 @@
   when: consul_use_systemd and systemctl_check.stat.exists == true
 
 - name: reload systemd
-  sudo: yes
+  become: yes
   command: systemctl daemon-reload
   when: consul_use_systemd and systemctl_check.stat.exists == true
 
@@ -73,7 +73,7 @@
   service: name=consul state=restarted enabled=yes
 
 - name: systemd consul restart
-  sudo: yes
+  become: yes
   command: systemctl restart consul
   when: consul_use_systemd and systemctl_check.stat.exists == true
 
