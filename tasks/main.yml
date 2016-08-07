@@ -1,6 +1,10 @@
 ---
 
-
+- name: install unzip
+  package: name={{item}} state=installed
+  with_items:
+    - unzip
+    
 - name: "Check systemctl"
   stat: path=/bin/systemctl
   register: systemctl_check
