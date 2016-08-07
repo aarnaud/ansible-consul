@@ -3,7 +3,7 @@ consul_is_server: false
 consul_bootstrap_expect: 1
 consul_node_name: "{{ ansible_hostname }}"
 consul_datacenter: "dev"
-consul_domain: "local"
+consul_domain: "consul"
 consul_bind_address: "0.0.0.0"
 consul_client_addr: "0.0.0.0"
 consul_encrypt_key: "ex/6WXYMM3R4XQDp73D3dw=="
