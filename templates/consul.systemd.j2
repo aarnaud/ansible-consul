@@ -1,5 +1,6 @@
 [Unit]
 Description=Consul Agent
+After=network.target auditd.service
 
 [Service]
 Environment="GOMAXPROCS=`nproc`"
