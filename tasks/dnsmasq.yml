@@ -1,0 +1,16 @@
+- name: install dnsmasq
+  apt: pkg=dnsmasq state=installed
+
+- name: configure dnsmasq
+  copy: content='server=/{{ consul_domain }}/127.0.0.1#8600' dest=/etc/dnsmasq.d/10-consul
+  register: consul_dnsmasq_config_status
+
+- name: Restart dnsmasq
+  service: name=dnsmasq state=restarted enabled=yes
+  when: consul_dnsmasq_config_status.changed
+
+- name: Start dnsmasq if not start
+  service: name=dnsmasq state=started
+
+- name: Wait for dnsmasq start
+  wait_for: port=53 delay=5 timeout=30

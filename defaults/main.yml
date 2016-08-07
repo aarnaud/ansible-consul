@@ -1,0 +1,20 @@
+consul_version: "0.6.4"
+consul_is_server: false
+consul_bootstrap_expect: 1
+consul_node_name: "{{ ansible_hostname }}"
+consul_datacenter: "dev"
+consul_domain: "local"
+consul_bind_address: "0.0.0.0"
+consul_client_addr: "0.0.0.0"
+consul_encrypt_key: "ex/6WXYMM3R4XQDp73D3dw=="
+consul_start_join: []
+consul_config_file: "/etc/consul/consul.conf"
+consul_config_dir: "/etc/consul/conf.d"
+consul_data_dir: "/var/consul"
+consul_home_dir: "/opt/consul"
+consul_log_file: "/var/log/consul.log"
+consul_use_systemd: true
+consul_use_upstart: false
+consul_use_sysV: false
+consul_install_dnsmasq: false
+consul_auto_discovery: true

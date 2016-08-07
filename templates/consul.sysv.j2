@@ -1,0 +1,179 @@
+#!/bin/sh
+#
+# consul Consul Service Discovery Platform
+#
+# chkconfig:   2345 20 80
+# description: Consul is a tool for discovering and configuring services
+#              in your infrastructure. It provides several key features:
+#               * Service Discovery
+#               * Health Checking
+#               * Key/Valuye Store
+#               * Multi Datacenter
+
+### BEGIN INIT INFO
+# Provides:           consul
+# Required-Start:     $network
+# Required-Stop:      $network
+# Should-Start:
+# Should-Stop:
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Consul Service Discovery Platform
+# Description:        Consul is a tool for discovering and configuring services
+#                     in your infrastructure. It provides several key features:
+#                       * Service Discovery
+#                       * Health Checking
+#                       * Key/Valuye Store
+#                       * Multi Datacenter
+### END INIT INFO
+
+export GOMAXPROCS=2
+
+exec="/usr/local/bin/consul"
+prog="consul"
+config_file="{{ consul_config_file }}"
+config_dir="{{ consul_config_dir }}"
+pidfile="/var/run/$prog.pid"
+logfile="{{ consul_log_file }}"
+cmd="$exec agent -config-dir $config_dir -config-file $config_file"
+
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+lockfile=/var/lock/$prog
+
+get_pid() {
+    cat "$pidfile"
+}
+
+is_running() {
+    [ -f "$pidfile" ] && ps `get_pid` > /dev/null 2>&1
+}
+
+start() {
+    [ -x $exec ] || exit 5
+    # [ -f $config_file ] || exit 6
+    echo -n "Starting $prog: "
+    if is_running; then
+        echo "$prog already running"
+    else
+        echo "Starting $prog"
+        $cmd >> "$logfile" &
+        echo $! > "$pidfile"
+        if ! is_running; then
+            echo "Unable to start $prog, see $logfile"
+            exit 1
+        fi
+    fi
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop() {
+    echo -n "Stopping $prog: "
+    if is_running; then
+        echo -n "Stopping $prog..."
+        kill -INT `get_pid`
+        for i in 1 2 3 4 5 6 7 8 9 10
+        do
+            if ! is_running; then
+                break
+            fi
+
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "$prog not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "$prog stopped"
+            if [ -f "$pidfile" ]; then
+                rm "$pidfile"
+            fi
+        fi
+    else
+        echo "$prog not running"
+    fi
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    if is_running; then
+        echo -n "Reloading $prog..."
+        kill -HUP `get_pid`
+        sleep 1
+        echo
+
+        if ! is_running; then
+            echo "$prog has died, see $logfile"
+            exit 1
+        fi
+    else
+        echo "$prog not running"
+    fi
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    if is_running; then
+        echo "$prog is running"
+        return 0
+    fi
+    if ! is_running; then
+        echo "$prog is not running"
+        return 3
+    fi
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
+esac
+exit $?

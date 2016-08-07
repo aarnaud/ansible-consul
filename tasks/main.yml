@@ -1,0 +1,82 @@
+---
+
+
+- name: "Check systemctl"
+  stat: path=/bin/systemctl
+  register: systemctl_check
+
+- name: "Check consul bin path"
+  stat: path=/usr/local/bin/consul
+  register: consul_bin
+
+- name: "get consul version if exist"
+  shell:  "consul version | head -n1 | cut -d'v' -f2"
+  when: consul_bin.stat.exists == true
+  register: consul_installed_version
+
+- name: "Create consul group"
+  group: name="consul" state=present system=yes
+
+- name: "Create consul user"
+  action: user name=consul comment="HashiCorp Consul" group="consul" createhome=no state=present system=yes shell=/bin/bash
+
+- name: "Create consul directory"
+  file: dest={{ item }} state=directory owner=consul group=consul
+  with_items:
+    - "{{ consul_config_dir }}"
+    - "{{ consul_data_dir }}"
+    - "{{ consul_home_dir }}"
+
+- name: "Download consul"
+  get_url: url="https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip" dest=/tmp/consul.zip validate_certs=no
+  when: consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version
+
+- name: "Extract consul"
+  unarchive: src=/tmp/consul.zip dest=/usr/local/bin/ copy=no
+  when: consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version
+
+- name: "Download consul web ui"
+  get_url: url="https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_web_ui.zip" dest=/tmp/consul_web_ui.zip validate_certs=no
+  when: consul_is_server and ( consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version )
+
+- name: "Extract consul web ui"
+  unarchive: src=/tmp/consul_web_ui.zip dest={{ consul_home_dir }} copy=no
+  when: consul_is_server and ( consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version )
+
+- name: "create consul log file"
+  file: dest={{ consul_log_file }} state=touch owner=consul group=consul
+
+- name: "Template consul server config"
+  template: src="config.json.j2" dest={{ consul_config_file }} owner=consul group=consul
+
+- name: "copy consul upstart script"
+  template: src="consul.upstart.j2" dest=/etc/init/consul.conf  owner="consul"  group="consul" mode=0755
+  when: consul_use_upstart
+
+- name: "copy consul systemd script"
+  template: src="consul.systemd.j2" dest=/etc/systemd/system/consul.service owner="consul"  group="consul"   mode=0755
+  when: consul_use_systemd and systemctl_check.stat.exists == true
+
+- name: reload systemd
+  sudo: yes
+  command: systemctl daemon-reload
+  when: consul_use_systemd and systemctl_check.stat.exists == true
+
+- name: "copy consul sysV script"
+  template: src="consul.sysv.j2" dest=/etc/init.d/consul owner="consul"  group="consul"   mode=0755
+  when: consul_use_sysV
+
+- include: dnsmasq.yml
+  when: consul_install_dnsmasq == true
+
+- name: restart consul
+  service: name=consul state=restarted enabled=yes
+
+- name: systemd consul restart
+  sudo: yes
+  command: systemctl restart consul
+  when: consul_use_systemd and systemctl_check.stat.exists == true
+
+- include: auto-discovery.yml
+  when: consul_auto_discovery == true
+

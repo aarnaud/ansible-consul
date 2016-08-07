@@ -1,0 +1,15 @@
+
+- name: start consul if not start
+  service: name=consul state=restarted
+
+- name: Wait for consul start
+  wait_for: port=8600 delay=5 timeout=30
+
+- name: install sipcalc
+  apt: pkg={{item}} state=installed
+  with_items:
+    - sipcalc
+    - nmap
+
+- name: "Ubuntu - Auto discovery"
+  script: consul-auto-join.sh

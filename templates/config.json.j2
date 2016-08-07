@@ -1,0 +1,20 @@
+{
+    "bootstrap": false,
+{% if consul_is_server and consul_bootstrap_expect is defined %}
+    "bootstrap_expect": {{ consul_bootstrap_expect }},
+{% endif %}
+{% if consul_is_server  %}
+    "ui_dir": "{{consul_home_dir}}/dist/",
+{% endif %}
+    "server": {{ "true" if consul_is_server else "false" }},
+    "bind_addr": "{{ consul_bind_address }}",
+    "client_addr": "{{ consul_client_addr }}",
+    "node_name": "{{ consul_node_name }}",
+    "domain": "{{ consul_domain }}",
+    "datacenter": "{{ consul_datacenter }}",
+    "data_dir": "/var/consul",
+    "encrypt": "{{ consul_encrypt_key }}",
+    "log_level": "INFO",
+    "enable_syslog": false,
+    "start_join": {{ consul_start_join|to_nice_json }}
+}
