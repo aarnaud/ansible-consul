@@ -35,7 +35,7 @@ config_file="{{ consul_config_file }}"
 config_dir="{{ consul_config_dir }}"
 pidfile="/var/run/$prog.pid"
 logfile="{{ consul_log_file }}"
-cmd="$exec agent -config-dir $config_dir -config-file $config_file"
+cmd="$exec agent --config-dir=$config_dir --config-file=$config_file"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

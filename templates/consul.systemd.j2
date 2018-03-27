@@ -6,7 +6,7 @@ After=network.target auditd.service
 Environment="GOMAXPROCS=`nproc`"
 User=consul
 Group=consul
-ExecStart=/usr/local/bin/consul agent -config-dir {{ consul_config_dir }} -config-file={{ consul_config_file }} >> {{ consul_log_file }} 2>&1
+ExecStart=/usr/local/bin/consul agent --config-dir={{ consul_config_dir }} --config-file={{ consul_config_file }}
 
 [Install]
 WantedBy=multi-user.target

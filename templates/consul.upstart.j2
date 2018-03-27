@@ -10,8 +10,8 @@ script
 export GOMAXPROCS=`nproc`
 
 exec sudo -u consul -g consul /usr/local/bin/consul agent \
-  -config-dir {{ consul_config_dir }} \
-  -config-file={{ consul_config_file }} \
+  --config-dir {{ consul_config_dir }} \
+  --config-file={{ consul_config_file }} \
   >> {{ consul_log_file }} 2>&1
 end script
 

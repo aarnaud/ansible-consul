@@ -43,14 +43,6 @@
   unarchive: src=/tmp/consul.zip dest=/usr/local/bin/ copy=no
   when: consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version
 
-- name: "Download consul web ui"
-  get_url: url="https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_web_ui.zip" dest=/tmp/consul_web_ui.zip validate_certs=no
-  when: consul_is_server and ( consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version )
-
-- name: "Extract consul web ui"
-  unarchive: src=/tmp/consul_web_ui.zip dest={{ consul_home_dir }} copy=no
-  when: consul_is_server and ( consul_bin.stat.exists == False or consul_installed_version.stdout != consul_version )
-
 - name: "create consul log file"
   file: dest={{ consul_log_file }} state=touch owner=consul group=consul
 

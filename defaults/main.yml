@@ -1,4 +1,4 @@
-consul_version: "0.6.4"
+consul_version: "1.0.6"
 consul_is_server: false
 consul_bootstrap_expect: 1
 consul_node_name: "{{ ansible_hostname }}"
@@ -8,7 +8,7 @@ consul_bind_address: "0.0.0.0"
 consul_client_addr: "0.0.0.0"
 consul_encrypt_key: "ex/6WXYMM3R4XQDp73D3dw=="
 consul_start_join: []
-consul_config_file: "/etc/consul/consul.conf"
+consul_config_file: "/etc/consul/consul.json"
 consul_config_dir: "/etc/consul/conf.d"
 consul_data_dir: "/var/consul"
 consul_home_dir: "/opt/consul"
